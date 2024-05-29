@@ -8,9 +8,14 @@ module.exports = app => {
   
     // Retrieve all artwork
     router.get("/", artwork.findAll);
+
+    router.get("/maxID", artwork.findMaxID);
   
-    // Retrieve all published artwork
-    router.get("/published", artwork.findAllPublished);
+    // Retrieve artwork by year
+    router.get("/artworkByYear/:year", artwork.findByYear);
+
+    // Retrieve artwork by title
+    router.get("/artworkByTitle/:title", artwork.findByTitle);
   
     // Retrieve a single Artwork with id
     router.get("/:id", artwork.findOne);
@@ -20,9 +25,12 @@ module.exports = app => {
   
     // Delete a Artwork with id
     router.delete("/:id", artwork.delete);
+
+    // Delete Artwork by year
+    router.delete("/artworkByYear/:year", artwork.deleteByYear);
   
     // Create a new Artwork
-    router.delete("/", artwork.deleteAll);
+    //router.delete("/", artwork.deleteAll);
   
     app.use('/api/artwork', router);
   };

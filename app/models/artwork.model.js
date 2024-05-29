@@ -12,6 +12,12 @@ module.exports = (sequelize, Sequelize) => {
       },
       year: {
         type: Sequelize.INTEGER
+      },
+      imagedata: {
+        type: Sequelize.TEXT
+      },
+      reflection: {
+        type: Sequelize.TEXT
       }
     }, {
         timestamps: false,
