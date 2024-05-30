@@ -8,10 +8,10 @@ Run command node server.js to run the Express server. With the React server acti
 
 ### Including db.config.js
 module.exports = {
-    HOST: your host for the postgres database
-    USER: your user
+    HOST: your host for the postgres database,
+    USER: your user,
     PASSWORD: your user's password,
-    DB: your database
+    DB: your database,
     dialect: "postgres",
     pool: {
       max: 5,
