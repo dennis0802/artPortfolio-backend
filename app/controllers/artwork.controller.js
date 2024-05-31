@@ -12,6 +12,13 @@ exports.create = (req, res) => {
       return;
     }
 
+    if (!req.body.imagedata) {
+      res.status(400).send({
+        message: "An image must be uploaded!"
+      });
+      return;
+    }
+
     if (req.body.month === 0) {
       res.status(400).send({
         message: "Month cannot be empty!"
@@ -93,6 +100,35 @@ exports.findOne = (req, res) => {
 // Update a Artwork by the id in the request (UPDATE artworks SET <attributes>=<new value> WHERE id=<id>)
 exports.update = (req, res) => {
   const id = req.params.id;
+
+  // Validate request
+  if (!req.body.title) {
+    res.status(400).send({
+      message: "Title cannot be empty!"
+    });
+    return;
+  }
+
+  if (!req.body.imagedata) {
+    res.status(400).send({
+      message: "An image must be uploaded!"
+    });
+    return;
+  }
+
+  if (req.body.month === 0) {
+    res.status(400).send({
+      message: "Month cannot be empty!"
+    });
+    return;
+  }
+
+  if (!req.body.year) {
+    res.status(400).send({
+      message: "Year cannot be empty!"
+    });
+    return;
+  }
 
   Artwork.update(req.body, {
     where: { id: id }
@@ -181,8 +217,9 @@ exports.deleteByYear = (req, res) => {
 // Find all Artworks by a specified year (SELECT * FROM artworks where year = <year>)
 exports.findByYear = (req, res) => {
   const year = req.params.year;
+  const size = req.params.size;
 
-  Artwork.findAll({ where: { year: year } })
+  Artwork.findAll({ where: { year: year }, limit: size   })
   .then(data => {
     res.send(data);
   })
@@ -196,8 +233,9 @@ exports.findByYear = (req, res) => {
 
 exports.findByTitle = (req, res) => {
   const title = req.params.title;
+  const year = req.params.year;
 
-  Artwork.findAll({ where: { title: { [Op.iLike]: `%${title}%` } } })
+  Artwork.findAll({ where: { title: { [Op.iLike]: `%${title}%` },  year: year} })
   .then(data => {
     res.send(data);
   })
@@ -225,3 +263,43 @@ exports.findMaxID = (req, res) => {
     })
   })
 }
+
+// Retrieve all Artworks from the database, optionally with a title query (SELECT * FROM artworks WHERE title=<title> LIMIT <size> OFSET <page-1>*<size>) with paging
+exports.findAllPaged = (req, res) => {
+  const title = req.params.title;
+  const page = req.params.page;
+  const year = req.params.year;
+  const size = req.params.size;
+
+  var condition = title ? { title: { [Op.iLike]: `%${title}%` }, year: year} : { year: year};
+
+  Artwork.findAll({ where: condition, limit: size, offset: (page-1) * size, order: [['title', 'ASC']], })
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving artwork."
+      });
+    });
+};
+
+// Retrieve all Artworks from the database, optionally with a title query (SELECT * FROM artworks WHERE title=<title>) and without paging
+exports.findAllUnpaged = (req, res) => {
+  const title = req.params.title;
+  const year = req.params.year;
+
+  var condition = title ? { title: { [Op.iLike]: `%${title}%` }, year: year} : { year: year};
+
+  Artwork.findAll({ where: condition })
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving artwork."
+      });
+    });
+};
