@@ -78,6 +78,7 @@ app.post('/image-delete', (req, res) => {
 })
 
 require("./app/routes/artwork.routes")(app);
+require("./app/routes/user.routes")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
