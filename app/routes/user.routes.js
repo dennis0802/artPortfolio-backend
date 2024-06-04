@@ -9,6 +9,10 @@ module.exports = app => {
     // Get the max id
     router.get("/maxID", user.findMaxID);
 
+    router.get("/unpaged/:query?", user.findAllUnpaged)
+
+    router.get("/paged/:page/:size/:query?", user.findAllPaged)
+
     // Retrieve all users
     router.get("/", user.findAll);
 
@@ -19,6 +23,13 @@ module.exports = app => {
     router.get("/password/:password?/:stored?", user.verifyPassword)
 
     router.get("/email/:email", user.findByEmail)
+
+    router.put("/usernameLogin/:username", user.updateLogin)
+
+    router.put("/:username", user.update);
+
+    // Delete a user with username
+    router.delete("/:username", user.delete);
   
     app.use('/api/users', router);
   };

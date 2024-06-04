@@ -134,7 +134,7 @@ exports.create = (req, res) => {
                 role: req.body.role
             };
 
-            // Save Artwork in the database
+            // Save User in the database
             User.create(user)
             .then(data => {
                 res.send(data);
@@ -142,7 +142,7 @@ exports.create = (req, res) => {
             .catch(err => {
                 res.status(500).send({
                 message:
-                    err.message || "Some error occurred while creating the Artwork."
+                    err.message || "Some error occurred while creating the User."
                 });
             });
         }
@@ -184,14 +184,129 @@ exports.findOne = (req, res) => {
       });
 };
 
-// Update a Artwork by the id in the request (UPDATE artworks SET <attributes>=<new value> WHERE id=<id>)
+// Update a User by the id in the request (UPDATE users SET <attributes>=<new value> WHERE id=<id>)
 exports.update = (req, res) => {
+    const username = req.body.username;
 
+    // Validation
+    if (!username) {
+        res.status(400).send({
+          message: "Username cannot be empty!"
+        });
+        return;
+    }
+
+    if (!req.body.email) {
+        res.status(400).send({
+          message: "Email cannot be empty!"
+        });
+        return;
+    }
+
+    if (!req.body.role) {
+        res.status(400).send({
+          message: "Role cannot be empty!"
+        });
+        return;
+    }
+
+    // Password was changed and must be re-hashed
+    if(req.body.password[0] != '$'){
+        let passwordResult;
+        const checkPassword = async() => {
+            passwordResult = await isPasswordInvalid(req.body.password, req.body.passwordConfirm)
+        }
+
+        checkPassword().then(() => {
+            if(passwordResult[0] !== '$'){
+                res.status(400).send({
+                    message: "Password does not match requirements!"
+                });
+                return;
+            }
+            else{
+                var user = {
+                    user_id: req.body.user_id,
+                    username: req.body.username,
+                    password: passwordResult,
+                    email: req.body.email,
+                    created_at: req.body.created_at,
+                    last_login: req.body.last_login,
+                    role: req.body.role
+                };
+                
+                User.update(user, {
+                    where: { username: username }
+                })
+                .then(num => {
+                    if (num == 1) {
+                        console.log("TEST");
+                    res.send({
+                        message: "User was updated successfully."
+                    });
+                    } else {
+                    res.send({
+                        message: `Cannot update User with username=${username}. Maybe User was not found or req.body is empty!`
+                    });
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).send({
+                        message: "Error updating User with username=" + username
+                    });
+                });
+            }
+        })
+    }
+    // Password unchanged
+    else{
+        User.update(req.body, {
+            where: { username: username }
+        })
+        .then(num => {
+            if (num == 1) {
+                res.send({
+                    message: "User was updated successfully."
+                });
+            } else {
+                res.send({
+                    message: `Cannot update User with username=${username}. Maybe User was not found or req.body is empty!`
+                });
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send({
+                message: "Error updating User with username=" + username
+            });
+        });
+    }
 };
 
-// Delete a Artwork with the specified id in the request (DELETE FROM artworks WHERE id = <id>)
+// Delete a User with the specified id in the request (DELETE FROM users WHERE id = <id>)
 exports.delete = (req, res) => {
+    const username = req.params.username;
 
+    User.destroy({
+      where: { username: username }
+    })
+      .then(num => {
+        if (num == 1) {
+          res.send({
+            message: "User was deleted successfully!"
+          });
+        } else {
+          res.send({
+            message: `Cannot delete User with id=${id}. Maybe User was not found!`
+          });
+        }
+      })
+      .catch(err => {
+        res.status(500).send({
+          message: "Could not delete User with id=" + id
+        });
+      });
 };
 
 exports.verifyPassword = (req, res) => {
@@ -241,7 +356,7 @@ exports.findByEmail = (req, res) => {
     });
 }
 
-// Find the max recorded ID for inserting new records (SELECT max(id) from artworks) 
+// Find the max recorded ID for inserting new records (SELECT max(id) from users) 
 exports.findMaxID = (req, res) => {
   User.findOne({
     attributes: [db.Sequelize.fn('max', db.Sequelize.col('user_id'))],
@@ -258,12 +373,65 @@ exports.findMaxID = (req, res) => {
   })
 }
 
-// Retrieve all Artworks from the database, optionally with a title query (SELECT * FROM artworks WHERE title=<title> LIMIT <size> OFSET <page-1>*<size>) with paging
+exports.updateLogin = (req, res) => {
+    const username = req.params.username;
+  
+    User.update(req.body, {
+      where: { username: username }
+    })
+      .then(num => {
+        if (num == 1) {
+          res.send({
+            message: "User was updated successfully."
+          });
+        } else {
+          res.send({
+            message: `Cannot update User with username=${username}. Maybe User was not found or req.body is empty!`
+          });
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(500).send({
+          message: "Error updating User with username=" + username
+        });
+      });
+  };
+
+// Retrieve all Users from the database, optionally with a username query (SELECT * FROM users WHERE username=<username> LIMIT <size> OFSET <page-1>*<size>) with paging
 exports.findAllPaged = (req, res) => {
-
-};
-
-// Retrieve all Artworks from the database, optionally with a title query (SELECT * FROM artworks WHERE title=<title>) and without paging
-exports.findAllUnpaged = (req, res) => {
-
-};
+    const username = req.params.query;
+    const page = req.params.page;
+    const size = req.params.size;
+  
+    var condition = username ? { username: { [Op.iLike]: `%${username}%` }} : null;
+  
+    User.findAll({ where: condition, limit: size, offset: (page-1) * size, order: [['username', 'ASC']], })
+      .then(data => {
+        res.send(data);
+      })
+      .catch(err => {
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving user."
+        });
+      });
+  };
+  
+  // Retrieve all Users from the database, optionally with a username query (SELECT * FROM users WHERE username=<username>) and without paging
+  exports.findAllUnpaged = (req, res) => {
+    const username = req.params.query;
+  
+    var condition = username ? { username: { [Op.iLike]: `%${username}%` }} : null;
+  
+    User.findAll({ where: condition })
+      .then(data => {
+        res.send(data);
+      })
+      .catch(err => {
+        res.status(500).send({
+          message:
+            err.message || "Some error occurred while retrieving user."
+        });
+      });
+  };

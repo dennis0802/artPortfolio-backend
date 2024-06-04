@@ -177,24 +177,6 @@ exports.delete = (req, res) => {
     });
 };
 
-/*// Delete all Artworks from the database. (not going to be in use.)
-exports.deleteAll = (req, res) => {
-
-  Artwork.destroy({
-    where: {},
-    truncate: false
-  })
-    .then(nums => {
-      res.send({ message: `${nums} All artwork were deleted successfully!` });
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while removing all artworks."
-      });
-    });
-};*/
-
 // Delete all Artworks from the database by year (DELETE FROM artworks WHERE year = <year>)
 exports.deleteByYear = (req, res) => {
   const year = req.params.year;
