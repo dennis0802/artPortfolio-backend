@@ -2,8 +2,6 @@ const db = require("../models");
 const User = db.user;
 const Op = db.Sequelize.Op;
 const bcrypt = require("bcrypt");
-const postgres = require("postgres");
-const sql = postgres();
 
 // Utility for password requirements
 const isPasswordInvalid = async function(password, passwordConfirmation){
@@ -133,7 +131,7 @@ exports.create = (req, res) => {
                 last_login: date,
                 role: req.body.role
             };
-
+            
             // Save User in the database
             User.create(user)
             .then(data => {
@@ -165,7 +163,7 @@ exports.findAll = (req, res) => {
 
 // Find a single User with an id (SELECT * FROM users WHERE id=<id>)
 exports.findOne = (req, res) => {
-    const id = req.params.user_id;
+    const id = req.params.id;
 
     User.findByPk(id)
       .then(data => {
@@ -240,7 +238,6 @@ exports.update = (req, res) => {
                 })
                 .then(num => {
                     if (num == 1) {
-                        console.log("TEST");
                     res.send({
                         message: "User was updated successfully."
                     });
@@ -329,7 +326,7 @@ exports.verifyPassword = (req, res) => {
 exports.findByUsername = (req, res) => {
     const username = req.params.username
   
-    User.findAll({ where: { username: username}})
+    User.findOne({ where: { username: username}})
     .then(data => {
       res.send(data);
     })
@@ -344,7 +341,7 @@ exports.findByUsername = (req, res) => {
 exports.findByEmail = (req, res) => {
     const email = req.params.email
   
-    User.findAll({ where: { email: email}})
+    User.findOne({ where: { email: email}})
     .then(data => {
       res.send(data);
     })
@@ -418,20 +415,21 @@ exports.findAllPaged = (req, res) => {
       });
   };
   
-  // Retrieve all Users from the database, optionally with a username query (SELECT * FROM users WHERE username=<username>) and without paging
-  exports.findAllUnpaged = (req, res) => {
-    const username = req.params.query;
-  
-    var condition = username ? { username: { [Op.iLike]: `%${username}%` }} : null;
-  
-    User.findAll({ where: condition })
-      .then(data => {
-        res.send(data);
-      })
-      .catch(err => {
-        res.status(500).send({
-          message:
-            err.message || "Some error occurred while retrieving user."
-        });
+// Retrieve all Users from the database, optionally with a username query (SELECT * FROM users WHERE username=<username>) and without paging
+exports.findAllUnpaged = (req, res) => {
+  const username = req.params.query;
+
+  var condition = username ? { username: { [Op.iLike]: `%${username}%` }} : null;
+
+  User.findAll({ where: condition })
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving user."
       });
-  };
+    });
+};
+

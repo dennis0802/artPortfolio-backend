@@ -21,5 +21,6 @@ db.sequelize = sequelize;
 
 db.artwork = require("./artwork.model.js")(sequelize, Sequelize);
 db.user = require("./user.model.js")(sequelize, Sequelize);
+db.token = require("./token.model.js")(sequelize, Sequelize);
 
 module.exports = db;

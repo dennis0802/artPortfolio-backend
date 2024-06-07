@@ -15,12 +15,10 @@ module.exports = (sequelize, Sequelize) => {
       },
       created_at: {
         type: 'TIMESTAMP',
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         allowNull: false
       },
       last_login: {
         type: 'TIMESTAMP',
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         allowNull: true
       },
       role: {
