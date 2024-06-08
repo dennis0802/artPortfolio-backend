@@ -13,6 +13,18 @@ const config = {
 const transporter = nodemailer.createTransport(config);
 
 exports.sendEmailRegistration = (req, res) => {
+    const username = req.params.username;
+    const email = req.params.email;
+    const code = req.params.code;
+    const token = req.params.token;
+
+    if(!username || !email || !code || !token){
+        res.status(400).send({
+            message: "Username and month cannot be empty!"
+          });
+          return;
+    }
+
     let MailGenerator = new Mailgen({
         theme: 'default',
         product: {
@@ -23,7 +35,7 @@ exports.sendEmailRegistration = (req, res) => {
 
     let response = {
         body: {
-            name: 'username here',
+            name: username,
             intro: 'Welcome to the Digital Art Portfolio! We\'re very excited to have you on board.',
             action: {
                 instructions: `To get started, please click here and input the code <b>${code}</b> on the page to verify your email and complete registration:`,
@@ -42,13 +54,12 @@ exports.sendEmailRegistration = (req, res) => {
 
     let message = {
         from: config.auth.user, // sender address
-        to: "dennisdao2001@gmail.com", // list of receivers
+        to: email, // list of receivers
         subject: 'Welcome to Digital Art Portfolio!', // Subject line
         html: mail, // html body
     };
 
     transporter.sendMail(message).then((info) => {
-        res.send(info);
         return res.status(201).json(
             {
                 msg: "Email sent",
@@ -57,7 +68,6 @@ exports.sendEmailRegistration = (req, res) => {
             }
         )
     }).catch((err) => {
-        res.send(err);
         return res.status(500).json({ msg: err });
     }
     );

@@ -15,5 +15,22 @@ module.exports = app => {
 
     router.delete("/:user_id", token.delete);
 
+    // Registration
+    router.post("/registration", token.createRegistrationToken)
+
+    router.get("/registration/:user_id", token.getOneRegistration);
+
+    router.put("/registration/:user_id", token.updateRegistration);
+
+    router.put("/registrationRefresh/:user_id", token.updateRegistrationNewToken);
+
+    router.delete("/registration/:user_id", token.deleteRegistration);
+
+    router.get("/registrationMaxID", token.getMaxRegistrationID);
+
+    router.get("/registrationByToken/:token", token.findRegistrationByToken);
+
+    router.get("/registrationExists/:user_id", token.findRegistrationByUser);
+
     app.use('/api/tokens', router);
 }

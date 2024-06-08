@@ -9,7 +9,7 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         unique: true,
       },
-      isActive: {
+      isactive: {
         type: Sequelize.BOOLEAN,
         allowNull: false
       },
@@ -21,7 +21,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: true
       },
-      tokenExpiry: {
+      tokenexpiry: {
         type: 'TIMESTAMP',
         allowNull: true
       },

@@ -1,5 +1,6 @@
 const db = require("../models");
 const Token = db.token;
+const Status = db.status;
 const Op = db.Sequelize.Op;
 const uuid = require("uuid");
 
@@ -31,10 +32,6 @@ exports.createResetToken = (req, res) => {
         });
     });
   }
-  
-  // Get a password reset link to verify it exists
-  
-  // Delete the token if reset is successful or attempted access with expired token
 
 // Find the max recorded ID for inserting new records (SELECT max(id) from users) 
 exports.getMaxID = (req, res) => {
@@ -65,7 +62,7 @@ exports.findByUser = (req, res) => {
     .catch(err => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while retrieving Token with user id " + username + "."
+          err.message || "Some error occurred while retrieving Token with user id " + user + "."
       });
     });
 }
@@ -110,3 +107,184 @@ exports.delete = (req, res) => {
         });
       });
 };
+
+exports.createRegistrationToken = (req, res) => {
+  const code = Math.random().toString().slice(2,17);
+  const tokenContent = uuid.v4();
+  var date = new Date();
+  date.setMinutes(date.getMinutes() + 20);
+
+  var token = {
+    id: req.body.id,
+    user_id: req.body.user_id,
+    isactive: req.body.isactive,
+    token: tokenContent,
+    code: code,
+    tokenexpiry: new Date(date),
+  }
+
+  Status.create(token)
+  .then(data => {
+      res.send(data);
+  })
+  .catch(err => {
+      res.status(500).send({
+      message:
+          err.message || "Some error occurred while creating the Status token."
+      });
+  });
+}
+
+exports.getOneRegistration = (req, res) => {
+  const user = req.params.user_id;
+  
+  Status.findOne({ where: { user_id: user}})
+  .then(data => {
+    res.send(data);
+  })
+  .catch(err => {
+    res.status(500).send({
+      message:
+        err.message || "Some error occurred while retrieving Status with user id " + user + "."
+    });
+  });
+}
+
+// Find a single Token with specific content (SELECT * FROM status WHERE token=<token>)
+exports.findRegistrationByToken = (req, res) => {
+  const token = req.params.token;
+
+  Status.findOne({ where: { token: token}})
+  .then(data => {
+    res.send(data);
+  })
+  .catch(err => {
+    res.status(500).send({
+      message:
+        err.message || "Some error occurred while retrieving Status with token content " + token + "."
+    });
+  });
+}
+
+// Find a single Token with a user (SELECT * FROM status WHERE user_id=<user_id>)
+exports.findRegistrationByUser = (req, res) => {
+  const user = req.params.user_id;
+
+  Status.findOne({ where: { user_id: user}})
+  .then(data => {
+    res.send(data);
+  })
+  .catch(err => {
+    res.status(500).send({
+      message:
+        err.message || "Some error occurred while retrieving Status with user id " + user + "."
+    });
+  });
+}
+
+exports.updateRegistration = (req, res) => {
+  const id = req.params.user_id;
+  
+  Status.update(req.body, {
+    where: { id: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Status was updated successfully."
+        });
+      } else {
+        res.send({
+          message: `Cannot update Status with user_id=${id}. Maybe Status was not found or req.body is empty!`
+        });
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).send({
+        message: "Error updating Status with user_id=" + id
+      });
+    });
+}
+
+exports.updateRegistrationNewToken = (req, res) => {
+  const id = req.params.user_id;
+  const code = Math.random().toString().slice(2,17);
+  const tokenContent = uuid.v4();
+  var date = new Date();
+  date.setMinutes(date.getMinutes() + 20);
+
+  console.log("test");
+
+  var data = {
+    id: req.body.id,
+    user_id: req.body.user_id,
+    isactive: req.body.isactive,
+    token: tokenContent,
+    code: code,
+    tokenexpiry: new Date(date)
+  }
+  
+  Status.update(data, {
+    where: { id: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Status was updated successfully."
+        });
+      } else {
+        res.send({
+          message: `Cannot update Status with user_id=${id}. Maybe Status was not found or req.body is empty!`
+        });
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).send({
+        message: "Error updating Status with user_id=" + id
+      });
+    });
+}
+
+exports.deleteRegistration = (req, res) => {
+  const id = req.params.user_id;
+
+  Status.destroy({
+    where: { user_id: id}
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Status was deleted successfully!"
+        });
+      } else {
+        res.send({
+          message: `Cannot delete status with user id=${id}. Maybe status was not found!`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Could not delete status with user id=" + id
+      });
+    });
+}
+
+// Find the max recorded ID for inserting new records (SELECT max(id) from users) 
+exports.getMaxRegistrationID = (req, res) => {
+  Status.findOne({
+    attributes: [db.Sequelize.fn('max', db.Sequelize.col('id'))],
+    raw: true
+  })
+  .then(data => {
+    res.send(data);
+  })
+  .catch(err => {
+      con
+    res.status(500).send({
+      message:
+        err.message || "Error occurred while retrieving max id"
+    })
+  })
+}
