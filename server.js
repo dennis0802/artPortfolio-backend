@@ -4,6 +4,8 @@ const cors = require("cors");
 const multer = require("multer");
 const serveIndex = require('serve-index');
 const fs = require('fs');
+const helmet = require('helmet')
+const https = require('https')
 
 const app = express();
 
@@ -22,10 +24,11 @@ bodyParser.json({
 
 // Requests come from port 8081, the React side
 var corsOptions = {
-  origin: "http://localhost:8081"
+  origin: "https://localhost:8081"
 };
 
 app.use(cors(corsOptions));
+app.use(helmet({crossOriginResourcePolicy: { policy: "same-site" }}));
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
@@ -84,8 +87,29 @@ require("./app/routes/token.routes")(app);
 require("./app/routes/email.routes")(app);
 require("./app/routes/feedback.routes")(app);
 
+// custom 404
+app.use((req, res, next) => {
+  res.status(404).send("Sorry can't find that!")
+})
+
+// custom error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack)
+  res.status(500).send('Something broke!')
+})
+
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
-});
+https
+  .createServer(
+		// Provide the private and public key to the server by reading each
+		// file's content with the readFileSync() method.
+    {
+      key: fs.readFileSync("key.pem"),
+      cert: fs.readFileSync("cert.pem"),
+    },
+    app
+  )
+  .listen(PORT, () => {
+    console.log("serever is runing at port 4000");
+  });

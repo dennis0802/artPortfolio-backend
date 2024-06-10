@@ -3,9 +3,25 @@ const Token = db.token;
 const Status = db.status;
 const Op = db.Sequelize.Op;
 const uuid = require("uuid");
+const approvedOrigin = "https://localhost:8081";
+
+const isAuth = function(req){
+  if(req.get('origin') !== approvedOrigin){
+    return false;
+  }
+  return true;
+}
 
 // Reset a password - ie. create a token entry 
 exports.createResetToken = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     const id = req.params.id;
     const max = req.params.max;
     const code = Math.random().toString().slice(2,17);
@@ -35,6 +51,14 @@ exports.createResetToken = (req, res) => {
 
 // Find the max recorded ID for inserting new records (SELECT max(id) from tokens) 
 exports.getMaxID = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     Token.findOne({
       attributes: [db.Sequelize.fn('max', db.Sequelize.col('id'))],
       raw: true
@@ -53,6 +77,14 @@ exports.getMaxID = (req, res) => {
 
 // Find a single Token with a user (SELECT * FROM tokens WHERE user_id=<user_id>)
 exports.findByUser = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     const user = req.params.user_id;
   
     Token.findOne({ where: { user_id: user}})
@@ -69,6 +101,14 @@ exports.findByUser = (req, res) => {
 
 // Find a single Token with specific content (SELECT * FROM tokens WHERE content=<content>)
 exports.findByToken = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const token = req.params.token;
 
   Token.findOne({ where: { content: token}})
@@ -85,6 +125,14 @@ exports.findByToken = (req, res) => {
 
 // Delete a token with the specified id in the request (DELETE FROM tokens WHERE id = <id>)
 exports.delete = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     const id = req.params.user_id;
 
     Token.destroy({
@@ -110,6 +158,14 @@ exports.delete = (req, res) => {
 
 // Create a registration token
 exports.createRegistrationToken = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const code = Math.random().toString().slice(2,17);
   const tokenContent = uuid.v4();
   var date = new Date();
@@ -138,6 +194,14 @@ exports.createRegistrationToken = (req, res) => {
 
 // Get one registration token for a specified user (SELECT * from status where user_id=<user_id>)
 exports.getOneRegistration = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const user = req.params.user_id;
   
   Status.findOne({ where: { user_id: user}})
@@ -154,6 +218,14 @@ exports.getOneRegistration = (req, res) => {
 
 // Find a single Token with specific content (SELECT * FROM status WHERE token=<token>)
 exports.findRegistrationByToken = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const token = req.params.token;
 
   Status.findOne({ where: { token: token}})
@@ -170,6 +242,14 @@ exports.findRegistrationByToken = (req, res) => {
 
 // Find a single Token with a user (SELECT * FROM status WHERE user_id=<user_id>)
 exports.findRegistrationByUser = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const user = req.params.user_id;
 
   Status.findOne({ where: { user_id: user}})
@@ -186,6 +266,14 @@ exports.findRegistrationByUser = (req, res) => {
 
 // Update a registration token (UPDATE status SET attributes=<newAttributes> WHERE user_id=<user_id>)
 exports.updateRegistration = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const id = req.params.user_id;
   
   Status.update(req.body, {
@@ -212,6 +300,14 @@ exports.updateRegistration = (req, res) => {
 
 // Update a registration token and give a new token (UPDATE status SET attributes=<newAttributes> WHERE user_id=<user_id>)
 exports.updateRegistrationNewToken = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const id = req.params.user_id;
   const code = Math.random().toString().slice(2,17);
   const tokenContent = uuid.v4();
@@ -251,6 +347,14 @@ exports.updateRegistrationNewToken = (req, res) => {
 
 // Delete a registration token (DELETE FROM status WHERE user_id=<user_id>)
 exports.deleteRegistration = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const id = req.params.user_id;
 
   Status.destroy({
@@ -276,6 +380,14 @@ exports.deleteRegistration = (req, res) => {
 
 // Find the max recorded ID for inserting new registrations (SELECT max(id) from status) 
 exports.getMaxRegistrationID = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   Status.findOne({
     attributes: [db.Sequelize.fn('max', db.Sequelize.col('id'))],
     raw: true

@@ -1,9 +1,25 @@
 const db = require("../models");
 const Rating = db.rating;
 const Op = db.Sequelize.Op;
+const approvedOrigin = "https://localhost:8081";
+
+const isAuth = function(req){
+  if(req.get('origin') !== approvedOrigin){
+    return false;
+  }
+  return true;
+}
 
 // Create a rating
 exports.createRating = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     if(parseInt(req.body.rating) < 1 || parseInt(req.body.rating) > 5){
         res.status(400).send({
             message: "A valid rating must be selected!"
@@ -35,6 +51,14 @@ exports.createRating = (req, res) => {
 
 // Find the max recorded ID for inserting new records (SELECT max(id) from ratings) 
 exports.findMaxID = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     Rating.findOne({
       attributes: [db.Sequelize.fn('max', db.Sequelize.col('id'))],
       raw: true
@@ -51,6 +75,14 @@ exports.findMaxID = (req, res) => {
   }
 
 exports.findByArtwork = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     const id = req.params.art_id;
 
     var condition = { art_id: id};
@@ -68,6 +100,14 @@ exports.findByArtwork = (req, res) => {
 }
 
 exports.findByRating = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const id = req.params.id;
 
   var condition = { id: id};
@@ -86,6 +126,14 @@ exports.findByRating = (req, res) => {
 
 // Find the average rating of Rating (SELECT avg(rating) from ratings) 
 exports.avgRating = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const id = req.params.art_id;
 
   var condition = { art_id: id};
@@ -108,6 +156,14 @@ exports.avgRating = (req, res) => {
 
 // Update a Rating by the id in the request (UPDATE ratings SET <attributes>=<new value> WHERE id=<id>)
 exports.update = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const id = req.params.id;
 
   // Validate request
@@ -152,6 +208,14 @@ exports.update = (req, res) => {
 
 // Delete a rating with the specified id in the request (DELETE FROM ratings WHERE id = <id>)
 exports.delete = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const id = req.params.id;
 
   Rating.destroy({
@@ -177,6 +241,14 @@ exports.delete = (req, res) => {
 
 // Delete a rating with the specified user in the request (DELETE FROM ratings WHERE user_id = <user_id>)
 exports.deleteByUser = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const id = req.params.user_id;
 
   Rating.destroy({
@@ -202,6 +274,14 @@ exports.deleteByUser = (req, res) => {
 
 // Delete a rating with the specified art in the request (DELETE FROM ratings WHERE art_id = <art_id>)
 exports.deleteByArt = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const id = req.params.art_id;
 
   Rating.destroy({

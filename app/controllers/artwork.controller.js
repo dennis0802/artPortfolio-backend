@@ -1,9 +1,25 @@
 const db = require("../models");
 const Artwork = db.artwork;
 const Op = db.Sequelize.Op;
+const approvedOrigin = "https://localhost:8081";
+
+const isAuth = function(req){
+  if(req.get('origin') !== approvedOrigin){
+    return false;
+  }
+  return true;
+}
 
 // Create and save a new Artwork (INSERT INTO artworks (<attributes>) VALUES (<values>))
 exports.create = (req, res) => {
+    if(!isAuth(req)){
+      res.status(403).send({
+        message:
+          "Unauthorized."
+      })
+      return;
+    }
+
     // Validate request
     if (!req.body.title) {
       res.status(400).send({
@@ -60,6 +76,14 @@ exports.create = (req, res) => {
 
 // Retrieve all Artworks from the database, optionally with a title query (SELECT * FROM artworks WHERE title=<title>)
 exports.findAll = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const title = req.query.title;
 
   var condition = title ? { title: { [Op.iLike]: `%${title}%` }} : null;
@@ -78,6 +102,14 @@ exports.findAll = (req, res) => {
 
 // Find a single Artwork with an id (SELECT * FROM artworks WHERE id=<id>)
 exports.findOne = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const id = req.params.id;
 
   Artwork.findByPk(id)
@@ -99,6 +131,14 @@ exports.findOne = (req, res) => {
 
 // Update a Artwork by the id in the request (UPDATE artworks SET <attributes>=<new value> WHERE id=<id>)
 exports.update = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const id = req.params.id;
 
   // Validate request
@@ -154,6 +194,14 @@ exports.update = (req, res) => {
 
 // Delete a Artwork with the specified id in the request (DELETE FROM artworks WHERE id = <id>)
 exports.delete = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const id = req.params.id;
 
   Artwork.destroy({
@@ -179,6 +227,14 @@ exports.delete = (req, res) => {
 
 // Delete all Artworks from the database by year (DELETE FROM artworks WHERE year = <year>)
 exports.deleteByYear = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const year = req.params.year;
 
   Artwork.destroy({
@@ -198,6 +254,14 @@ exports.deleteByYear = (req, res) => {
 
 // Find all Artworks by a specified year (SELECT * FROM artworks where year = <year>)
 exports.findByYear = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const year = req.params.year;
   const size = req.params.size;
 
@@ -214,6 +278,14 @@ exports.findByYear = (req, res) => {
 };
 
 exports.findByTitle = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const title = req.params.title;
   const year = req.params.year;
 
@@ -231,6 +303,14 @@ exports.findByTitle = (req, res) => {
 
 // Find the max recorded ID for inserting new records (SELECT max(id) from artworks) 
 exports.findMaxID = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   Artwork.findOne({
     attributes: [db.Sequelize.fn('max', db.Sequelize.col('id'))],
     raw: true
@@ -248,6 +328,15 @@ exports.findMaxID = (req, res) => {
 
 // Retrieve all Artworks from the database, optionally with a title query (SELECT * FROM artworks WHERE title=<title> LIMIT <size> OFSET <page-1>*<size>) with paging
 exports.findAllPaged = (req, res) => {
+  console.log(req.get('origin'))
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const title = req.params.title;
   const page = req.params.page;
   const year = req.params.year;
@@ -269,6 +358,14 @@ exports.findAllPaged = (req, res) => {
 
 // Retrieve all Artworks from the database, optionally with a title query (SELECT * FROM artworks WHERE title=<title>) and without paging
 exports.findAllUnpaged = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const title = req.params.title;
   const year = req.params.year;
 

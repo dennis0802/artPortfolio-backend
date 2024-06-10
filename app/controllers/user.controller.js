@@ -2,6 +2,14 @@ const db = require("../models");
 const User = db.user;
 const Op = db.Sequelize.Op;
 const bcrypt = require("bcrypt");
+const approvedOrigin = "https://localhost:8081";
+
+const isAuth = function(req){
+  if(req.get('origin') !== approvedOrigin){
+    return false;
+  }
+  return true;
+}
 
 // Utility for password requirements
 const isPasswordInvalid = async function(password, passwordConfirmation){
@@ -85,6 +93,14 @@ const verifyPasswordLogin = async function(password, stored){
 
 // Create and save a new User(INSERT INTO users (<attributes>) VALUES (<values>))
 exports.create = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     // Validation
     if (!req.body.username) {
         res.status(400).send({
@@ -149,6 +165,14 @@ exports.create = (req, res) => {
 
 // Retrieve all Users from the database (SELECT * FROM users)
 exports.findAll = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     User.findAll()
       .then(data => {
         res.send(data);
@@ -163,6 +187,14 @@ exports.findAll = (req, res) => {
 
 // Find a single User with an id (SELECT * FROM users WHERE id=<id>)
 exports.findOne = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     const id = req.params.id;
 
     User.findByPk(id)
@@ -184,6 +216,14 @@ exports.findOne = (req, res) => {
 
 // Update a User by the id in the request (UPDATE users SET <attributes>=<new value> WHERE id=<id>)
 exports.update = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     const username = req.body.username;
 
     // Validation
@@ -283,6 +323,14 @@ exports.update = (req, res) => {
 
 // Delete a User with the specified id in the request (DELETE FROM users WHERE id = <id>)
 exports.delete = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     const username = req.params.username;
 
     User.destroy({
@@ -307,6 +355,14 @@ exports.delete = (req, res) => {
 };
 
 exports.verifyPassword = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     const password = req.params.password;
     const stored= req.params.stored;
 
@@ -324,6 +380,14 @@ exports.verifyPassword = (req, res) => {
 };
 
 exports.findByUsername = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     const username = req.params.username
   
     User.findOne({ where: { username: username}})
@@ -339,6 +403,14 @@ exports.findByUsername = (req, res) => {
 }
 
 exports.findByEmail = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     const email = req.params.email
   
     User.findOne({ where: { email: email}})
@@ -355,6 +427,14 @@ exports.findByEmail = (req, res) => {
 
 // Find the max recorded ID for inserting new records (SELECT max(id) from users) 
 exports.findMaxID = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   User.findOne({
     attributes: [db.Sequelize.fn('max', db.Sequelize.col('user_id'))],
     raw: true
@@ -371,6 +451,14 @@ exports.findMaxID = (req, res) => {
 }
 
 exports.updateLogin = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     const username = req.params.username;
   
     User.update(req.body, {
@@ -397,6 +485,14 @@ exports.updateLogin = (req, res) => {
 
 // Retrieve all Users from the database, optionally with a username query (SELECT * FROM users WHERE username=<username> LIMIT <size> OFSET <page-1>*<size>) with paging
 exports.findAllPaged = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     const username = req.params.query;
     const page = req.params.page;
     const size = req.params.size;
@@ -417,6 +513,14 @@ exports.findAllPaged = (req, res) => {
   
 // Retrieve all Users from the database, optionally with a username query (SELECT * FROM users WHERE username=<username>) and without paging
 exports.findAllUnpaged = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
   const username = req.params.query;
 
   var condition = username ? { username: { [Op.iLike]: `%${username}%` }} : null;

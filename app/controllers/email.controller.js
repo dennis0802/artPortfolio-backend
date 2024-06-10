@@ -1,6 +1,14 @@
 const nodemailer = require('nodemailer');
+const approvedOrigin = "https://localhost:8081";
 const Mailgen = require('mailgen');
 require('dotenv').config();
+
+const isAuth = function(req){
+    if(req.get('origin') !== approvedOrigin){
+      return false;
+    }
+    return true;
+  }
 
 const config = {
     service: 'gmail', // your email domain
@@ -14,6 +22,14 @@ const transporter = nodemailer.createTransport(config);
 
 // Send a registration email
 exports.sendEmailRegistration = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     const username = req.params.username;
     const email = req.params.email;
     const code = req.params.code;
@@ -30,7 +46,7 @@ exports.sendEmailRegistration = (req, res) => {
         theme: 'default',
         product: {
             name: 'Digital Art Portfolio',
-            link: 'http://localhost:8081'
+            link: 'https://localhost:8081'
         }
     });
 
@@ -43,7 +59,7 @@ exports.sendEmailRegistration = (req, res) => {
                 button: {
                     color: '#22BC66', // Optional action button color
                     text: 'Confirm your account',
-                    link: `http://localhost:8081/confirmAccount/${token}`
+                    link: `https://localhost:8081/confirmAccount/${token}`
                 }
             },
             outro: 'Need help, or have questions? Just reply to this email, we\'d love to help.',
@@ -76,6 +92,14 @@ exports.sendEmailRegistration = (req, res) => {
 
 // Send a password reset email
 exports.sendEmailReset = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
     const username = req.params.username;
     const email = req.params.email;
     const code = req.params.code;
@@ -92,7 +116,7 @@ exports.sendEmailReset = (req, res) => {
         theme: 'default',
         product: {
             name: 'Digital Art Portfolio',
-            link: 'http://localhost:8081'
+            link: 'https://localhost:8081'
         }
     });
 
@@ -107,7 +131,7 @@ exports.sendEmailReset = (req, res) => {
                 button: {
                     color: '#22BC66', // Optional action button color
                     text: 'Reset Your Password',
-                    link: `http://localhost:8081/reset/${token}`
+                    link: `https://localhost:8081/reset/${token}`
                 }
             },
             outro: 'Need help, or have questions? Just reply to this email, we\'d love to help.',
