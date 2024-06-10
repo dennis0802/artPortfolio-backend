@@ -77,10 +77,12 @@ app.post('/image-delete', (req, res) => {
   res.send('POST request recevied on server to /image-delete');
 })
 
+// Model routes
 require("./app/routes/artwork.routes")(app);
 require("./app/routes/user.routes")(app);
 require("./app/routes/token.routes")(app);
 require("./app/routes/email.routes")(app);
+require("./app/routes/feedback.routes")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;

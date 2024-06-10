@@ -33,7 +33,7 @@ exports.createResetToken = (req, res) => {
     });
   }
 
-// Find the max recorded ID for inserting new records (SELECT max(id) from users) 
+// Find the max recorded ID for inserting new records (SELECT max(id) from tokens) 
 exports.getMaxID = (req, res) => {
     Token.findOne({
       attributes: [db.Sequelize.fn('max', db.Sequelize.col('id'))],
@@ -83,7 +83,7 @@ exports.findByToken = (req, res) => {
   });
 }
 
-// Delete a User with the specified id in the request (DELETE FROM users WHERE id = <id>)
+// Delete a token with the specified id in the request (DELETE FROM tokens WHERE id = <id>)
 exports.delete = (req, res) => {
     const id = req.params.user_id;
 
@@ -108,6 +108,7 @@ exports.delete = (req, res) => {
       });
 };
 
+// Create a registration token
 exports.createRegistrationToken = (req, res) => {
   const code = Math.random().toString().slice(2,17);
   const tokenContent = uuid.v4();
@@ -135,6 +136,7 @@ exports.createRegistrationToken = (req, res) => {
   });
 }
 
+// Get one registration token for a specified user (SELECT * from status where user_id=<user_id>)
 exports.getOneRegistration = (req, res) => {
   const user = req.params.user_id;
   
@@ -182,11 +184,12 @@ exports.findRegistrationByUser = (req, res) => {
   });
 }
 
+// Update a registration token (UPDATE status SET attributes=<newAttributes> WHERE user_id=<user_id>)
 exports.updateRegistration = (req, res) => {
   const id = req.params.user_id;
   
   Status.update(req.body, {
-    where: { id: id }
+    where: { user_id: id }
   })
     .then(num => {
       if (num == 1) {
@@ -207,14 +210,13 @@ exports.updateRegistration = (req, res) => {
     });
 }
 
+// Update a registration token and give a new token (UPDATE status SET attributes=<newAttributes> WHERE user_id=<user_id>)
 exports.updateRegistrationNewToken = (req, res) => {
   const id = req.params.user_id;
   const code = Math.random().toString().slice(2,17);
   const tokenContent = uuid.v4();
   var date = new Date();
   date.setMinutes(date.getMinutes() + 20);
-
-  console.log("test");
 
   var data = {
     id: req.body.id,
@@ -247,6 +249,7 @@ exports.updateRegistrationNewToken = (req, res) => {
     });
 }
 
+// Delete a registration token (DELETE FROM status WHERE user_id=<user_id>)
 exports.deleteRegistration = (req, res) => {
   const id = req.params.user_id;
 
@@ -271,7 +274,7 @@ exports.deleteRegistration = (req, res) => {
     });
 }
 
-// Find the max recorded ID for inserting new records (SELECT max(id) from users) 
+// Find the max recorded ID for inserting new registrations (SELECT max(id) from status) 
 exports.getMaxRegistrationID = (req, res) => {
   Status.findOne({
     attributes: [db.Sequelize.fn('max', db.Sequelize.col('id'))],

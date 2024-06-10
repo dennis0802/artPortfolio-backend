@@ -12,6 +12,7 @@ const config = {
 
 const transporter = nodemailer.createTransport(config);
 
+// Send a registration email
 exports.sendEmailRegistration = (req, res) => {
     const username = req.params.username;
     const email = req.params.email;
@@ -73,6 +74,7 @@ exports.sendEmailRegistration = (req, res) => {
     );
 }
 
+// Send a password reset email
 exports.sendEmailReset = (req, res) => {
     const username = req.params.username;
     const email = req.params.email;
