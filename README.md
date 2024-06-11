@@ -20,3 +20,6 @@ module.exports = {
       idle: 10000
     }
 };
+
+### Automating Backups
+A batch script backup.bat is provided for using Windows Task Scheduler and will require a defined PG_PASS environment variable. Other options such as pgagent can be done depening on your preferences.
