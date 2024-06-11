@@ -4,6 +4,8 @@ const Status = db.status;
 const Op = db.Sequelize.Op;
 const uuid = require("uuid");
 const approvedOrigin = "https://localhost:8081";
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const isAuth = function(req){
   if(req.get('origin') !== approvedOrigin){
@@ -402,4 +404,37 @@ exports.getMaxRegistrationID = (req, res) => {
         err.message || "Error occurred while retrieving max id"
     })
   })
+}
+
+exports.getJWT = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+
+  var token = jwt.sign(req.body, process.env.APP_PASSWORD, {expiresIn: "3h"});
+  res.send(token);
+}
+
+exports.decodeJWT = (req, res) => {
+  if(!isAuth(req)){
+    res.status(403).send({
+      message:
+        "Unauthorized."
+    })
+    return;
+  }
+  
+  var data;
+
+  try {
+    data = jwt.verify(req.body.data, process.env.APP_PASSWORD);
+    res.send(data);
+  } catch (error) {
+    console.log("Wrong signature");
+    res.send("Token inspected.")
+  }
 }

@@ -328,7 +328,6 @@ exports.findMaxID = (req, res) => {
 
 // Retrieve all Artworks from the database, optionally with a title query (SELECT * FROM artworks WHERE title=<title> LIMIT <size> OFSET <page-1>*<size>) with paging
 exports.findAllPaged = (req, res) => {
-  console.log(req.get('origin'))
   if(!isAuth(req)){
     res.status(403).send({
       message:

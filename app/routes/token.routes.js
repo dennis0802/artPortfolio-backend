@@ -38,5 +38,10 @@ module.exports = app => {
 
     router.get("/registrationExists/:user_id", token.findRegistrationByUser);
 
+    // JWTs
+    router.post("/JWT", token.getJWT);
+
+    router.post("/decodeJWT", token.decodeJWT);
+
     app.use('/api/tokens', router);
 }
