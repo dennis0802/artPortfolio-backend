@@ -1,6 +1,5 @@
 echo off
 echo 'Generate backup file name'
-echo %time%
 set HH=%time:~0,2%
 set MM=%time:~3,2%
 SET SS=%time:~6,2%
